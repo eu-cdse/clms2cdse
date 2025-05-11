@@ -18,9 +18,9 @@ export RCLONE_CONFIG_CLMS_REGION=default
 export RCLONE_CONFIG_CLMS_ENDPOINT='https://s3.waw3-1.cloudferro.com'
 export RCLONE_CONFIG_CLMS_PROVIDER='Ceph'
 ```
-##Tool options:
+## Tool options:
 ```
-   -b	     [REQUIRED] bucket name to upload to specific to a producer e.g. CLMS-YOUR-BUCKET-NAME
+   -b	   [REQUIRED] bucket name to upload to specific to a producer e.g. CLMS-YOUR-BUCKET-NAME
    -h      this message
    -l      [REQUIRED] local path (i.e. file system) path to input file or a directory with CLMS product name containing product files (e.g. COGs & STAC JSON metadata) 
    -o      [OPTIONAL] shall input file in the CLMS-YOUR-BUCKET-NAME bucket in the CDSE staging storage be overwritten?
@@ -30,22 +30,23 @@ export RCLONE_CONFIG_CLMS_PROVIDER='Ceph'
    -t      [CONDITIONALLY REQUIRED] if a CLMS product is a directory containing many files. This flag indicates that a CLMS folder should be combined as a TAR archive.  
    -v      clms_upload.sh version
 ```
-##Single CLMS product upload:
+## Single CLMS product upload:
 ```
 clms_upload.sh -b CLMS-YOUR-BUCKET-NAME -l /tmp/c_gls_NDVI_200503110000_GLOBE_VGT_V3.0.1.nc
 ```
-##Upload a directory of a CLMS product containing multiple files:
+## Upload a directory of a CLMS product containing multiple files:
 ```
 clms_upload.sh -b CLMS-YOUR-BUCKET-NAME -l /tmp/c_gls_NDVI_202001010000_GLOBE_PROBAV_V3.0.2.cog/ -t
 ```
-##Batch upload of all NetCDF files stored locally in /home/ubuntu directory in 5 parallel sessions:
+## Batch upload of all NetCDF files stored locally in /home/ubuntu directory in 5 parallel sessions:
 ```
 find /home/ubuntu -name '*.nc' | xargs -l -P 5 bash -c 'clms_upload.sh -b CLMS-YOUR-BUCKET-NAME -l $0'
 ```
-##Batch upload of all COG folders residing localy in /home/ubuntu directory in 5 parallel sessions:
+## Batch upload of all COG folders residing localy in /home/ubuntu directory in 5 parallel sessions:
 ```
 find /home/ubuntu -name "*.cog" -type d | xargs -l -P 5 bash -c 'clms_upload.sh -b CLMS-YOUR-BUCKET-NAME -l $0 -t'
 ```
+
 # For WINDOWS and MacOS users the tool can be executed via Docker environment
 ##Build Docker container
 
