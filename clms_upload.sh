@@ -3,8 +3,9 @@
 # release notes:
 # Version 1.00 [20250405] code name hermes
 # Version 1.01 [20250508] update sanity checks; adding attributes: 'clms-upload-version,odp-priority'; adjust date with time zone UTC
+# Version 1.02 [20250709] addiotion of rclone --s3-disable-http2 flag to resolve potential problems with GO and http2 https://forum.rclone.org/t/disable-http2-in-conf-file/49149
 ###############################
-version="1.01"
+version="1.02"
 usage()
 {
 cat << EOF
