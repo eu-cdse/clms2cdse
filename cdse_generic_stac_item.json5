@@ -90,100 +90,100 @@
             "<PROJ_TRANSFORM_8>"
         ],
         "published":"<DATE>", /* ADDED BY CDSE. Date and time the corresponding STAC entity or Asset (see below) was updated last, in UTC. */
-		"sar:center_frequency":"<NUMBER>", /* REQUIRED IF APPLICABLE The center frequency of the instrument, in gigahertz (GHz). */
-		"sar:frequency_band":"<STRING>", /* REQUIRED IF APPLICABLE  The common name for the frequency band to make it easier to search for bands across instruments. https://github.com/stac-extensions/sar?tab=readme-ov-file#sarfrequency_band---common-frequency-band-names */
-		"sar:instrument_mode":"<STRING>", /* REQUIRED IF APPLICABLE The name of the sensor acquisition mode that is commonly used. This should be the short name, if available. For example, WV for Wave mode of Sentinel-1 and Envisat ASAR satellites. */
-		"sar:observation_direction": "<STRING>", /* REQUIRED IF APPLICABLE Antenna pointing direction relative to the flight trajectory of the satellite, either left or right. */
-		"sar:pixel_spacing_azimuth": "<NUMBER>", /* REQUIRED IF APPLICABLE The azimuth pixel spacing, which is the distance between adjacent pixels parallel to the flight path, in meters (m). */
-		"sar:pixel_spacing_range": "<NUMBER>", /* REQUIRED IF APPLICABLE The range pixel spacing, which is the distance between adjacent pixels perpendicular to the flight path, in meters (m). */
-		"sar:polarizations": ["<STRING>","<STRING>"], /* REQUIRED IF APPLICABLE */
-		"sar:relative_burst":"<NUMBER>", /* REQUIRED IF APPLICABLE Identification number that uniquely identifies a burst cycle within each repeat cycle. */
-		"sat:absolute_orbit":"<NUMBER>", /* REQUIRED IF APPLICABLE. The absolute orbit number at the time of acquisition. */
-		"sat:orbit_cycle":"<NUMBER>", /* REQUIRED IF APPLICABLE. The number of repeat cycle done by the satellite at the time of the acquisition. Repeat cycle is the time between two successive identical orbits. */
+	"sar:center_frequency":"<NUMBER>", /* REQUIRED IF APPLICABLE The center frequency of the instrument, in gigahertz (GHz). */
+	"sar:frequency_band":"<STRING>", /* REQUIRED IF APPLICABLE  The common name for the frequency band to make it easier to search for bands across instruments. https://github.com/stac-extensions/sar?tab=readme-ov-file#sarfrequency_band---common-frequency-band-names */
+	"sar:instrument_mode":"<STRING>", /* REQUIRED IF APPLICABLE The name of the sensor acquisition mode that is commonly used. This should be the short name, if available. For example, WV for Wave mode of Sentinel-1 and Envisat ASAR satellites. */
+	"sar:observation_direction": "<STRING>", /* REQUIRED IF APPLICABLE Antenna pointing direction relative to the flight trajectory of the satellite, either left or right. */
+	"sar:pixel_spacing_azimuth": "<NUMBER>", /* REQUIRED IF APPLICABLE The azimuth pixel spacing, which is the distance between adjacent pixels parallel to the flight path, in meters (m). */
+	"sar:pixel_spacing_range": "<NUMBER>", /* REQUIRED IF APPLICABLE The range pixel spacing, which is the distance between adjacent pixels perpendicular to the flight path, in meters (m). */
+	"sar:polarizations": ["<STRING>","<STRING>"], /* REQUIRED IF APPLICABLE */
+	"sar:relative_burst":"<NUMBER>", /* REQUIRED IF APPLICABLE Identification number that uniquely identifies a burst cycle within each repeat cycle. */
+	"sat:absolute_orbit":"<NUMBER>", /* REQUIRED IF APPLICABLE. The absolute orbit number at the time of acquisition. */
+	"sat:orbit_cycle":"<NUMBER>", /* REQUIRED IF APPLICABLE. The number of repeat cycle done by the satellite at the time of the acquisition. Repeat cycle is the time between two successive identical orbits. */
         "sat:orbit_state":"<STRING>", /* REQUIRED IF APPLICABLE. The state of the orbit. Either ascending or descending for polar orbiting satellites, or geostationary for geosynchronous satellites */
-		"sat:platform_international_designator":"<STRING>", /* REQUIRED IF APPLICABLE. The International Designator, also known as COSPAR ID, and NSSDCA ID */
-		"sat:relative_orbit":"<NUMBER>", /* REQUIRED IF APPLICABLE. The relative orbit number at the time of acquisition.       */
+	"sat:platform_international_designator":"<STRING>", /* REQUIRED IF APPLICABLE. The International Designator, also known as COSPAR ID, and NSSDCA ID */
+	"sat:relative_orbit":"<NUMBER>", /* REQUIRED IF APPLICABLE. The relative orbit number at the time of acquisition.       */
         "start_datetime":"<DATE>", /* REQUIRED. The first or start date and time for the resource, in UTC. It is formatted as date-time according to RFC 3339, section 5.6 */
         "statistics":"<OBJECT>", /* OPTIONAL https://github.com/stac-extensions/stats#items-stats */
     	"storage:schemes":"<OBJECT>", /* ADDED BY CDSE */
         "updated":"<DATE>", /* ADDED BY CDSE. Date and time the corresponding STAC entity or Asset (see below) was updated last, in UTC. */
-		"view:azimuth":"<NUMBER>", /* OPTIONAL. Viewing azimuth angle. The angle measured from the sub-satellite point (point on the ground below the platform) between the scene center and true north. Measured clockwise from north in degrees (0-360). */
-		"view:incidence_angle":"<NUMBER>", /* OPTIONAL. The incidence angle is the angle between the vertical (normal) to the intercepting surface and the line of sight back to the satellite at the scene center. Measured in degrees (0-90). */
-		"view:sun_azimuth":"<NUMBER>", /* OPTIONAL. Viewing azimuth angle. The angle measured from the sub-satellite point (point on the ground below the platform) between the scene center and true north. Measured clockwise from north in degrees (0-360). */
-		"view:sun_elevation":"<NUMBER>", /* OPTIONAL. Sun elevation angle. The angle from the tangent of the scene center point to the sun. Measured from the horizon in degrees (-90-90). Negative values indicate the sun is below the horizon, e.g. sun elevation of -10° means the data was captured during nautical twilight. */
+	"view:azimuth":"<NUMBER>", /* OPTIONAL. Viewing azimuth angle. The angle measured from the sub-satellite point (point on the ground below the platform) between the scene center and true north. Measured clockwise from north in degrees (0-360). */
+	"view:incidence_angle":"<NUMBER>", /* OPTIONAL. The incidence angle is the angle between the vertical (normal) to the intercepting surface and the line of sight back to the satellite at the scene center. Measured in degrees (0-90). */
+	"view:sun_azimuth":"<NUMBER>", /* OPTIONAL. Viewing azimuth angle. The angle measured from the sub-satellite point (point on the ground below the platform) between the scene center and true north. Measured clockwise from north in degrees (0-360). */
+	"view:sun_elevation":"<NUMBER>", /* OPTIONAL. Sun elevation angle. The angle from the tangent of the scene center point to the sun. Measured from the horizon in degrees (-90-90). Negative values indicate the sun is below the horizon, e.g. sun elevation of -10° means the data was captured during nautical twilight. */
     },
     "collection":"<CDSE_COLLECTION_NAME>", /* REQUIRED */
     "links": [
-        {
-            "rel":"collection",
-            "href":"<CDSE_COLLECTION_LINK>",
-            "type":"application/json"
+	{
+        	"rel":"collection",
+        	"href":"<CDSE_COLLECTION_LINK>",
+        	"type":"application/json"
         },
         {
-            "rel":"parent",
-            "href":"<CDSE_COLLECTION_LINK>",
-            "type":"application/json"
+        	"rel":"parent",
+        	"href":"<CDSE_COLLECTION_LINK>",
+        	"type":"application/json"
         },
         {
-            "rel":"root",
-            "href":"https://stac.dataspace.copernicus.eu/v1/",
-            "type":"application/json"
+        	"rel":"root",
+        	"href":"https://stac.dataspace.copernicus.eu/v1/",
+        	"type":"application/json"
         }
     ],
     "assets": {
         "Product": {
-			"alternate:":"<OBJECT>", /* ADDED BY CDSE */
-			"alternate:name":"S3", /* ADDED BY CDSE */
-        	"auth:refs": ["<STRING>","<STRING>"], /* ADDED BY CDSE */
-            "file:checksum":"<STRING>", /* REQUIRED Provides a way to specify TAR file checksums (i.e. BLAKE3). The hashes are self-identifying hashes as described in the Multihash (https://github.com/multiformats/multihash) specification and must be encoded as hexadecimal (base 16) string with lowercase letters.  */
-            "file:size":"<NUMBER>", /* REQUIRED The TAR file size, specified in bytes. */
-            "href":"s3://CLMS_PRODUCER_BUCKET_PATH/YYYY/MM/DD/PRODUCT_NAME.tar>", /*  YYYY/MM/DD <- year/month/date of a product upload */
-            "roles": [
-            	"data",
-                "metadata",
-                "archive"
-            ],
+		"alternate:":"<OBJECT>", /* ADDED BY CDSE */
+		"alternate:name":"S3", /* ADDED BY CDSE */
+		"auth:refs": ["<STRING>","<STRING>"], /* ADDED BY CDSE */
+        	"file:checksum":"<STRING>", /* REQUIRED Provides a way to specify TAR file checksums (i.e. BLAKE3). The hashes are self-identifying hashes as described in the Multihash (https://github.com/multiformats/multihash) specification and must be encoded as hexadecimal (base 16) string with lowercase letters.  */
+        	"file:size":"<NUMBER>", /* REQUIRED The TAR file size, specified in bytes. */
+        	"href":"s3://CLMS_PRODUCER_BUCKET_PATH/YYYY/MM/DD/PRODUCT_NAME.tar>", /*  YYYY/MM/DD <- year/month/date of a product upload */
+        	"roles": [
+            		"data",
+                	"metadata",
+                	"archive"
+            	],
         	"storage:refs": ["<STRING>","<STRING>"], /* ADDED BY CDSE */
-            "title":"TAR product", /* REQUIRED */
-            "type":"application/tar", /* REQUIRED */
+        	"title":"TAR product", /* REQUIRED */
+        	"type":"application/tar", /* REQUIRED */
         },
         "<DATA_FILE_NAME>": {
-			"alternate:":"<OBJECT>", /* ADDED BY CDSE */
-			"alternate:name":"S3", /* ADDED BY CDSE */
+		"alternate:":"<OBJECT>", /* ADDED BY CDSE */
+		"alternate:name":"S3", /* ADDED BY CDSE */
         	"auth:refs": ["<STRING>","<STRING>"], /* ADDED BY CDSE */
-            "data_type":"<STRING>", /* REQUIRED https://github.com/radiantearth/stac-spec/blob/master/commons/common-metadata.md#data-types */
-            "description":"<STRING>", /* OPTIONAL A description of the Asset providing additional details, such as how it was processed or created. CommonMark 0.29 syntax MAY be used for rich text representation. */
+        	"data_type":"<STRING>", /* REQUIRED https://github.com/radiantearth/stac-spec/blob/master/commons/common-metadata.md#data-types */
+        	"description":"<STRING>", /* OPTIONAL A description of the Asset providing additional details, such as how it was processed or created. CommonMark 0.29 syntax MAY be used for rich text representation. */
 	        "eo:center_wavelength":"<NUMBER>", /* REQUIRED IF APPLICABLE. The center wavelength of the band, in micrometers (μm). */
         	"eo:common_name":"<STRING>", /* REQUIRED IF APPLICABLE. The name commonly used to refer to the band to make it easier to search for bands across instruments. See the list of accepted common names. */
 	        "eo:full_width_half_max":"<NUMBER>", /* REQUIRED IF APPLICABLE. Full width at half maximum (FWHM). The width of the band, as measured at half the maximum transmission, in micrometers (μm). */
-            "file:checksum":"<STRING>", /* REQUIRED Provides a way to specify file checksums (e.g. BLAKE2, MD5, SHA1, SHA2, SHA3). The hashes are self-identifying hashes as described in the Multihash https://github.com/multiformats/multihash specification and must be encoded as hexadecimal string with lowercase letters.  */
-            "file:local_path":"<PRODUCT_NAME>/../<FILE_NAME>", /* REQUIRED https://github.com/stac-extensions/file?tab=readme-ov-file#local-path */
-            "file:size":"<NUMBER>", /* REQUIRED The file size, specified in bytes. */
-            "nodata":"<NUMBER>", /* REQUIRED IF APPLICABLE https://github.com/radiantearth/stac-spec/blob/master/commons/common-metadata.md#no-data */
-            "raster:scale":"<NUMBER>", /* REQUIRED IF APPLICABLE Multiplicator factor of the pixel value to transform into the value (i.e. translate digital number to reflectance) */
-            "raster:offset":"<NUMBER>", /* REQUIRED IF APPLICABLE Number to be added to the pixel value (after scaling) to transform into the value (i.e. translate digital number to reflectance).  */
-            "roles": [
-                "data"
-            ],
-            "sar:polarizations":["<STRING>"], /* REQUIRED IF APPICABLE */
+        	"file:checksum":"<STRING>", /* REQUIRED Provides a way to specify file checksums (e.g. BLAKE2, MD5, SHA1, SHA2, SHA3). The hashes are self-identifying hashes as described in the Multihash https://github.com/multiformats/multihash specification and must be encoded as hexadecimal string with lowercase letters.  */
+        	"file:local_path":"<PRODUCT_NAME>/../<FILE_NAME>", /* REQUIRED https://github.com/stac-extensions/file?tab=readme-ov-file#local-path */
+        	"file:size":"<NUMBER>", /* REQUIRED The file size, specified in bytes. */
+        	"nodata":"<NUMBER>", /* REQUIRED IF APPLICABLE https://github.com/radiantearth/stac-spec/blob/master/commons/common-metadata.md#no-data */
+        	"raster:scale":"<NUMBER>", /* REQUIRED IF APPLICABLE Multiplicator factor of the pixel value to transform into the value (i.e. translate digital number to reflectance) */
+        	"raster:offset":"<NUMBER>", /* REQUIRED IF APPLICABLE Number to be added to the pixel value (after scaling) to transform into the value (i.e. translate digital number to reflectance).  */
+        	"roles": [
+        		"data"
+        	],
+        	"sar:polarizations":["<STRING>"], /* REQUIRED IF APPICABLE */
         	"storage:refs": ["<STRING>","<STRING>"], /* ADDED BY CDSE */
-            "title":"<STRING>", /* REQUIRED The displayed title for clients and users. */
-            "type":"<STRING>" /* REQUIRED, Media type (https://github.com/radiantearth/stac-spec/blob/master/commons/assets.md#media-types) of the asset. See the common media types in the best practice doc for commonly used asset types. e.g. "image/tiff; application=geotiff; profile=cloud-optimized"  */
+        	"title":"<STRING>", /* REQUIRED The displayed title for clients and users. */
+        	"type":"<STRING>" /* REQUIRED, Media type (https://github.com/radiantearth/stac-spec/blob/master/commons/assets.md#media-types) of the asset. See the common media types in the best practice doc for commonly used asset types. e.g. "image/tiff; application=geotiff; profile=cloud-optimized"  */
         },
         "<METADATA_FILE_NAME>": {
-			"alternate:":"<OBJECT>", /* ADDED BY CDSE */
-			"alternate:name":"S3", /* ADDED BY CDSE */
+		"alternate:":"<OBJECT>", /* ADDED BY CDSE */
+		"alternate:name":"S3", /* ADDED BY CDSE */
         	"auth:refs": ["<STRING>","<STRING>"], /* ADDED BY CDSE */
-            "description":"<STRING>", /* OPTIONAL A description of the Asset providing additional details, such as how it was processed or created. CommonMark 0.29 syntax MAY be used for rich text representation. */
-            "file:checksum":"<STRING>", /* REQUIRED Provides a way to specify file checksums (e.g. BLAKE2, MD5, SHA1, SHA2, SHA3). The hashes are self-identifying hashes as described in the Multihash (https://github.com/multiformats/multihash) specification and must be encoded as hexadecimal (base 16) string with lowercase letters.  */
-            "file:local_path":"<PRODUCT_NAME>/../<FILE_NAME>", /* REQUIRED https://github.com/stac-extensions/file?tab=readme-ov-file#local-path */
-            "file:size":"<NUMBER>", /* REQUIRED The file size, specified in bytes. */
-            "roles": [
-                "metadata"
-            ],
+        	"description":"<STRING>", /* OPTIONAL A description of the Asset providing additional details, such as how it was processed or created. CommonMark 0.29 syntax MAY be used for rich text representation. */
+        	"file:checksum":"<STRING>", /* REQUIRED Provides a way to specify file checksums (e.g. BLAKE2, MD5, SHA1, SHA2, SHA3). The hashes are self-identifying hashes as described in the Multihash (https://github.com/multiformats/multihash) specification and must be encoded as hexadecimal (base 16) string with lowercase letters.  */
+        	"file:local_path":"<PRODUCT_NAME>/../<FILE_NAME>", /* REQUIRED https://github.com/stac-extensions/file?tab=readme-ov-file#local-path */
+        	"file:size":"<NUMBER>", /* REQUIRED The file size, specified in bytes. */
+            	"roles": [
+                	"metadata"
+            	],
         	"storage:refs": ["<STRING>","<STRING>"], /* ADDED BY CDSE */
-            "title":"Product metadata", /* REQUIRED The displayed title for clients and users. */
-            "type":"application/xml"  /* REQUIRED, Media type (https://github.com/radiantearth/stac-spec/blob/master/commons/assets.md#media-types) of the asset. See the common media types in the best practice doc for commonly used asset types. */
+        	"title":"Product metadata", /* REQUIRED The displayed title for clients and users. */
+        	"type":"application/xml"  /* REQUIRED, Media type (https://github.com/radiantearth/stac-spec/blob/master/commons/assets.md#media-types) of the asset. See the common media types in the best practice doc for commonly used asset types. */
         }
     }
 }
