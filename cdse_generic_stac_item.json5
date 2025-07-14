@@ -128,7 +128,26 @@
         	"rel":"root",
         	"href":"https://stac.dataspace.copernicus.eu/v1/",
         	"type":"application/json"
-        }
+        },
+	{ /* ADDED BY CDSE */
+		"rel": "self",
+		"type": "application/geo+json",
+		"href": "<CDSE_ITEM_LINK>"
+	},
+	{ /* ADDED BY CDSE */
+		"rel": "version-history",
+		"href": "<CDSE_TRACEBILITY_LINK>",
+		"type": "application/json",
+		"title": "Product history record from the CDSE traceability service"
+	},
+	{ /* ADDED BY CDSE */
+		"rel": "enclosure",
+		"href": "<CDSE_S3_PRODUCT_PATH>",
+		"type": "application/x-directory",
+		"title": "S3 path to source directory",
+		"auth:refs": "<OBJECT>", 
+		"storage:refs": "<OBJECT>"
+	}
     ],
     "assets": {
         "Product": {
