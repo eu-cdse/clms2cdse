@@ -7,7 +7,7 @@ This utility copies CLMS products from **LOCAL STORAGE** of a producer to the CD
 
 ## Prerequisites:
 
-- Linux distribution with bash shell and pre-installed [rclone](https://rclone.org/docs/) and [gdal+ogr](https://gdal.org/en/stable/download.html#binaries) utilities.
+- Linux distribution with bash shell and pre-installed [jq](https://jqlang.org/) , [rclone](https://rclone.org/docs/) and [gdal+ogr](https://gdal.org/en/stable/download.html#binaries) utilities.
 - Exported environmental variables. Can be added to [.bashrc](https://www.digitalocean.com/community/tutorials/bashrc-file-in-linux) file:
 
 ```
