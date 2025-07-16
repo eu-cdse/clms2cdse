@@ -105,6 +105,11 @@
             "rel": "root",
             "href": "<CDSE_COLLECTION_LINK>",
             "type": "application/json"
+        },
+        {
+          "rel": "items",
+          "href": "<CDSE_COLLECTION_LINK>/items",
+          "type": "application/geo+json"
         }
     ]
 }
