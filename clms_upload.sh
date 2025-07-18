@@ -4,8 +4,9 @@
 # Version 1.00 [20250405] code name hermes
 # Version 1.01 [20250508] update sanity checks; adding attributes: 'clms-upload-version,odp-priority'; adjust date with time zone UTC
 # Version 1.02 [20250709] addition of rclone --s3-disable-http2 flag to resolve potential problems with GO and http2 https://forum.rclone.org/t/disable-http2-in-conf-file/49149
+# Version 1.03 [20250718] better handling of rclone error codes
 ###############################
-version="1.02"
+version="1.03"
 usage()
 {
 cat << EOF
@@ -197,7 +198,7 @@ timestamp=$(date -u -d now '+%Y-%m-%dT%H:%M:%SZ')
 file_size=$(du -smb --apparent-size $local_file | cut -f1)
 md5_checksum=$(md5sum -b $local_file | cut -c-32)
 rclone -q copy --s3-disable-http2 --s3-no-check-bucket --retries=20 --low-level-retries=20 --checksum --s3-use-multipart-uploads='false' --metadata --metadata-set odp-priority=$priority --metadata-set clms-upload-version=$version --metadata-set uploaded=$timestamp --metadata-set WorkflowName="clms_upload" --metadata-set source-s3-endpoint-url=$RCLONE_CONFIG_CLMS_ENDPOINT --metadata-set file-size=$file_size --metadata-set md5=$md5_checksum --metadata-set last_modified=$last_modified --metadata-set s3-public-key=${RCLONE_CONFIG_CLMS_ACCESS_KEY_ID} --metadata-set source_s3_path='s3://'${s3_path} --metadata-set source_cleanup=true --metadata-set product_to_replace=${product_to_replace}${overwrite} $local_file CLMS:$s3_path
-[ $? == 1 ] && echo "ERROR: Failed to upload $local_file to s3://${s3_path}" || echo "SUCCESS: Uploaded $local_file to s3://${s3_path}"
+[ $? != 0 ] && echo "ERROR: rclone exit code:$?. Failed to upload $local_file to s3://${s3_path}" || echo "SUCCESS: Uploaded $local_file to s3://${s3_path}"
 if [ $taring == 1 ]; then
 	rm -v "/tmp/$(basename ${local_file})"
 fi
