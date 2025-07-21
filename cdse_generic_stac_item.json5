@@ -56,9 +56,9 @@
     	"auth:schemes":"<OBJECT>", /* ADDED BY CDSE */
         "created":"<DATE>", /* REQUIRED. Creation date and time of a product, in UTC. */
         "datetime":"<DATE>", /* REQUIRED. The searchable date and time of the assets, which must be in UTC. It is formatted according to RFC 3339, section 5.6." */
-        "description":"<STRING>", /* REQUIRED. Detailed multi-line description to fully explain the STAC entity. CommonMark 0.29 syntax MAY be used for rich text representation. */
+        "description":"<STRING>", /* OPTIONAL. Detailed multi-line description to fully explain the STAC entity. CommonMark 0.29 syntax MAY be used for rich text representation. */
         "end_datetime":"<DATE>", /* REQUIRED. The last or end date and time for the resource, in UTC. It is formatted as date-time according to RFC 3339, section 5.6. */
-        "expires":"<DATE>", /* ADDED BY CDSE. Date and time the corresponding STAC entity or Asset (see below) was updated last, in UTC. */
+        "expires":"<DATE>", /* ADDED BY CDSE. Date and time the corresponding data (see below) expires (is not valid any longer), in UTC. */
         "eo:cloud_cover":"<NUMBER>", /* OPTIONAL. Estimate of cloud as a percentage (0-100). */
         "eo:snow_cover":"<NUMBER>", /* OPTIONAL. Estimate of snow as a percentage (0-100). */
         "grid:code":"<STRING>", /* REQUIRED IF APPLICABLE. https://github.com/stac-extensions/grid#gridcode  */
