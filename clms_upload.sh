@@ -6,8 +6,9 @@
 # Version 1.02 [20250709] addition of rclone --s3-disable-http2 flag to resolve potential problems with GO and http2 https://forum.rclone.org/t/disable-http2-in-conf-file/49149
 # Version 1.03 [20250718] better handling of rclone error codes
 # Version 1.04 [20250723] rename "last_modified" attribute which denotes modification time in CLMS producer local storage to "created"
+# Version 1.05 [20250827] porper handling of whitespaces in local path
 ###############################
-version="1.04"
+version="1.05"
 usage()
 {
 cat << EOF
@@ -91,7 +92,7 @@ if [ -z $bucket ]; then
 	exit 1
 fi
 #verify if local_file was set
-if [ -z $local_file ]; then
+if [ -z "$local_file" ]; then
 	echo "ERROR: Local path must be specified!"
 	exit 2
 fi
@@ -102,32 +103,32 @@ if [ -z $RCLONE_CONFIG_CLMS_TYPE ] || [ -z $RCLONE_CONFIG_CLMS_ACCESS_KEY_ID ] |
 fi
 #verify if file/folder exists in the local storage
 if [ $taring == 1 ]; then
-	if [ ! -d  $local_file ] ; then
+	if [ ! -d  "$local_file" ] ; then
 		echo "ERROR: Directory $local_file does not exist in the local storage!"
 		exit 4
 	fi
 else
-	if [ ! -f $local_file ] ; then
+	if [ ! -f "$local_file" ] ; then
 		echo "ERROR: File $local_file does not exist in the local storage!"
 		exit 5
 	fi
 fi
 
 #verify if the product exists already in the CDSE OData 
-odata_product_count=$(wget -qO - 'https://datahub.creodias.eu/odata/v1/Products?$filter=(Collection/Name%20eq%20%27CLMS%27%20and%20startswith(Name,%27'$(basename $local_file | rev | cut -f 2- -d '.' | rev)'%27))' | jq '.value | length')
+odata_product_count=$(wget -qO - 'https://datahub.creodias.eu/odata/v1/Products?$filter=(Collection/Name%20eq%20%27CLMS%27%20and%20startswith(Name,%27'$(basename "$local_file" | rev | cut -f 2- -d '.' | rev)'%27))' | jq '.value | length')
 if [ $odata_product_count -gt 0 ]; then
 	echo 'ERROR: Such product exists in the CDSE!'
 	exit 6
 fi
 #verify if the product has not been already deleted from the CDSE
-deleted_product_count=$(wget -qO - 'https://datahub.creodias.eu/odata/v1/DeletedProducts?$filter=(Collection/Name%20eq%20%27CLMS%27%20and%20startswith(Name,%27'$(basename $local_file | rev | cut -f 2- -d '.' | rev)'%27))' | jq '.value | length')
+deleted_product_count=$(wget -qO - 'https://datahub.creodias.eu/odata/v1/DeletedProducts?$filter=(Collection/Name%20eq%20%27CLMS%27%20and%20startswith(Name,%27'$(basename "$local_file" | rev | cut -f 2- -d '.' | rev)'%27))' | jq '.value | length')
 if [ $deleted_product_count -gt 0 ]; then
 	echo 'ERROR: Such product has been deleted from the CDSE!'
 	exit 7
 fi
 #verify if the product to be uploaded is readable by gdal
 if [ $taring == 1 ]; then
-	for gdal_product in $(find $local_file -name '*.tif' -o -name '*.tiff' -o -name '*.nc'); do
+	for gdal_product in $(find "$local_file" -name '*.tif' -o -name '*.tiff' -o -name '*.nc'); do
 		gdalinfo $gdal_product > /dev/null 2>&1
 		if [ $? -ne 0 ]; then
 			ogrinfo $gdal_product > /dev/null 2>&1
@@ -138,9 +139,9 @@ if [ $taring == 1 ]; then
 		fi
 	done
 else
-	gdalinfo $local_file > /dev/null 2>&1
+	gdalinfo "$local_file" > /dev/null 2>&1
 	if [ $? -ne 0 ]; then
-		ogrinfo $local_file > /dev/null 2>&1
+		ogrinfo "$local_file" > /dev/null 2>&1
 		if [ $? -ne 0 ]; then
 			echo "ERROR: GDAL can not open ${local_file}!"
 			exit 8
@@ -148,16 +149,16 @@ else
 	fi
 fi
 
-if [ $(basename $local_file | tr -dc '.' | wc -c) -eq 3 ] || ([ $taring == 1 ] && [ $(basename $local_file | tr -dc '.' | wc -c) -eq 2 ]); then
+if [ $(basename "$local_file" | tr -dc '.' | wc -c) -eq 3 ] || ([ $taring == 1 ] && [ $(basename "$local_file" | tr -dc '.' | wc -c) -eq 2 ]); then
 	#verify path number is not 0
-	patch_number=$(echo $local_file | rev | cut -f 2 -d '.')
+	patch_number=$(echo "$local_file" | rev | cut -f 2 -d '.')
 	if [ $patch_number -eq 0 ]; then
 		echo "ERROR: Patch number (i.e. last digit in version) has to start with 1"
 		exit 9
 	fi
 	product_to_replace=''
 	#verify if the previous product version exists
-	odata_product=$(wget -qO - 'https://datahub.creodias.eu/odata/v1/Products?$filter=(Collection/Name%20eq%20%27CLMS%27%20and%20startswith(Name,%27'$(basename $local_file | rev | cut -f 3- -d '.' | rev)'%27))')
+	odata_product=$(wget -qO - 'https://datahub.creodias.eu/odata/v1/Products?$filter=(Collection/Name%20eq%20%27CLMS%27%20and%20startswith(Name,%27'$(basename "$local_file" | rev | cut -f 3- -d '.' | rev)'%27))')
 	if [ $(printf "$odata_product" | jq '.value|length') -gt 0 ]; then
 		product_to_replace=$(printf "$odata_product" |  jq -r '.value[].Name' | paste -sd, -)
 		odata_patch_number=$(printf "$odata_product" |  jq '.value[0].Name' | rev | cut -f 1 -d '.' | tr -dc '0-9')
@@ -182,12 +183,12 @@ if [ ! -z $product_to_replace ]; then
 	echo "INFO: Following products will be patched in the CDSE: $product_to_replace"
 fi
 
-last_modified=$(date -r $local_file '+%Y-%m-%dT%H:%M:%SZ')
+last_modified=$(date -r "$local_file" '+%Y-%m-%dT%H:%M:%SZ')
 #tar directory if needed
 if [ $taring == 1 ]; then
 	echo "INFO: Taring directory: $local_file"
-	cd ${local_file}
-	tar cf "/tmp/$(basename ${local_file} | sed 's/\(.*\)\./\1_/').tar" -C $local_file .
+	cd "${local_file}"
+	tar cf "/tmp/"$(basename "${local_file}" | sed 's/\(.*\)\./\1_/')".tar -C $local_file" .
 	if [ $? -ne 0 ];then
 		echo "ERROR: Could not tar the directory: $local_file"
 		exit 13
@@ -196,9 +197,9 @@ if [ $taring == 1 ]; then
 fi
 s3_path=${bucket}$(date --date now '+/%Y/%m/%d')
 timestamp=$(date -u -d now '+%Y-%m-%dT%H:%M:%SZ')
-file_size=$(du -smb --apparent-size $local_file | cut -f1)
-md5_checksum=$(md5sum -b $local_file | cut -c-32)
-rclone -q copy --s3-disable-http2 --s3-no-check-bucket --retries=20 --low-level-retries=20 --checksum --s3-use-multipart-uploads='false' --metadata --metadata-set odp-priority=$priority --metadata-set clms-upload-version=$version --metadata-set uploaded=$timestamp --metadata-set WorkflowName="clms_upload" --metadata-set source-s3-endpoint-url=$RCLONE_CONFIG_CLMS_ENDPOINT --metadata-set file-size=$file_size --metadata-set md5=$md5_checksum --metadata-set created=$last_modified --metadata-set s3-public-key=${RCLONE_CONFIG_CLMS_ACCESS_KEY_ID} --metadata-set source_s3_path='s3://'${s3_path} --metadata-set source_cleanup=true --metadata-set product_to_replace=${product_to_replace}${overwrite} $local_file CLMS:$s3_path
+file_size=$(du -smb --apparent-size "$local_file" | cut -f1)
+md5_checksum=$(md5sum -b "$local_file" | cut -c-32)
+rclone -q copy --s3-disable-http2 --s3-no-check-bucket --retries=20 --low-level-retries=20 --checksum --s3-use-multipart-uploads='false' --metadata --metadata-set odp-priority=$priority --metadata-set clms-upload-version=$version --metadata-set uploaded=$timestamp --metadata-set WorkflowName="clms_upload" --metadata-set source-s3-endpoint-url=$RCLONE_CONFIG_CLMS_ENDPOINT --metadata-set file-size=$file_size --metadata-set md5=$md5_checksum --metadata-set created=$last_modified --metadata-set s3-public-key=${RCLONE_CONFIG_CLMS_ACCESS_KEY_ID} --metadata-set source_s3_path='s3://'${s3_path} --metadata-set source_cleanup=true --metadata-set product_to_replace=${product_to_replace}${overwrite} "$local_file" CLMS:$s3_path
 rclone_exit_code=$?
 if [ $taring == 1 ]; then
 	rm -v "/tmp/$(basename ${local_file})"
