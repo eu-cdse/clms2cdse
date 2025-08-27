@@ -24,16 +24,16 @@ export RCLONE_CONFIG_CLMS_PROVIDER='Ceph'
 # example of usage
 #
 # Single file upload:
-clms_upload.sh -b CLMS-YOUR-BUCKET-NAME -l /tmp/c_gls_NDVI_200503110000_GLOBE_VGT_V3.0.1.nc
+clms_upload.sh -b CLMS-YOUR-BUCKET-NAME -l "/tmp/c_gls_NDVI_200503110000_GLOBE_VGT_V3.0.1.nc"
 #
 # Upload directory of a CLMS product containing multiple files:
-clms_upload.sh -b CLMS-YOUR-BUCKET-NAME -l /tmp/c_gls_NDVI_202001010000_GLOBE_PROBAV_V3.0.2.cog/ -t
+clms_upload.sh -b CLMS-YOUR-BUCKET-NAME -l "/tmp/c_gls_NDVI_202001010000_GLOBE_PROBAV_V3.0.2.cog/" -t
 #
 #Batch upload of all NetCDF files residing localy in /home/ubuntu directory in 5 parallel sessions:
-find /home/ubuntu -name "*.nc" | xargs -l -P 5 bash -c 'clms_upload.sh -b CLMS-YOUR-BUCKET-NAME -l $0'
+find /home/ubuntu -name "*.nc" | xargs -l -P 5 bash -c 'clms_upload.sh -b CLMS-YOUR-BUCKET-NAME -l "$0"'
 #
 #Batch upload of all COG folders residing localy in /home/ubuntu directory in 5 parallel sessions:
-find /home/ubuntu -name "*.cog" -type d | xargs -l -P 5 bash -c 'clms_upload.sh -b CLMS-YOUR-BUCKET-NAME -l $0 -t'
+find /home/ubuntu -name "*.cog" -type d | xargs -l -P 5 bash -c 'clms_upload.sh -b CLMS-YOUR-BUCKET-NAME -l "$0" -t'
 #
 ################################################################
 OPTIONS:
