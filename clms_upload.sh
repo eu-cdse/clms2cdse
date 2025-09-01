@@ -6,9 +6,10 @@
 # Version 1.02 [20250709] addition of rclone --s3-disable-http2 flag to resolve potential problems with GO and http2 https://forum.rclone.org/t/disable-http2-in-conf-file/49149
 # Version 1.03 [20250718] better handling of rclone error codes
 # Version 1.04 [20250723] rename "last_modified" attribute which denotes modification time in CLMS producer local storage to "created"
-# Version 1.05 [20250827] porper handling of whitespaces in local path
+# Version 1.05 [20250827] proper handling of whitespaces in local path
+# Version 1.06 [20250901] update of the UTM zone of uploaded products, reformating of rclone command, addition of the --retries-sleep to rclone 
 ###############################
-version="1.05"
+version="1.06"
 usage()
 {
 cat << EOF
@@ -183,7 +184,7 @@ if [ ! -z $product_to_replace ]; then
 	echo "INFO: Following products will be patched in the CDSE: $product_to_replace"
 fi
 
-last_modified=$(date -r "$local_file" '+%Y-%m-%dT%H:%M:%SZ')
+last_modified=$(date -u -r "$local_file" '+%Y-%m-%dT%H:%M:%SZ')
 #tar directory if needed
 if [ $taring == 1 ]; then
 	echo "INFO: Taring directory: $local_file"
@@ -195,11 +196,31 @@ if [ $taring == 1 ]; then
 	fi
 	local_file="/tmp/$(basename ${local_file} | sed 's/\(.*\)\./\1_/').tar"
 fi
-s3_path=${bucket}$(date --date now '+/%Y/%m/%d')
+s3_path=${bucket}$(date -u --date now '+/%Y/%m/%d')
 timestamp=$(date -u -d now '+%Y-%m-%dT%H:%M:%SZ')
 file_size=$(du -smb --apparent-size "$local_file" | cut -f1)
 md5_checksum=$(md5sum -b "$local_file" | cut -c-32)
-rclone -q copy --s3-disable-http2 --s3-no-check-bucket --retries=20 --low-level-retries=20 --checksum --s3-use-multipart-uploads='false' --metadata --metadata-set odp-priority=$priority --metadata-set clms-upload-version=$version --metadata-set uploaded=$timestamp --metadata-set WorkflowName="clms_upload" --metadata-set source-s3-endpoint-url=$RCLONE_CONFIG_CLMS_ENDPOINT --metadata-set file-size=$file_size --metadata-set md5=$md5_checksum --metadata-set created=$last_modified --metadata-set s3-public-key=${RCLONE_CONFIG_CLMS_ACCESS_KEY_ID} --metadata-set source-s3-path='s3://'${s3_path} --metadata-set source-cleanup=true --metadata-set product-to-replace=${product_to_replace}${overwrite} "$local_file" CLMS:$s3_path
+rclone -q copy \
+--s3-disable-http2 \
+--s3-no-check-bucket \
+--retries=20 \
+--retries-sleep=1 \
+--low-level-retries=20 \
+--checksum \
+--s3-use-multipart-uploads='false' \
+--metadata \
+--metadata-set odp-priority=$priority \
+--metadata-set clms-upload-version=$version \
+--metadata-set uploaded=$timestamp \
+--metadata-set WorkflowName="clms_upload" \
+--metadata-set source-s3-endpoint-url=$RCLONE_CONFIG_CLMS_ENDPOINT \
+--metadata-set file-size=$file_size \
+--metadata-set md5=$md5_checksum \
+--metadata-set created=$last_modified \
+--metadata-set s3-public-key=${RCLONE_CONFIG_CLMS_ACCESS_KEY_ID} \
+--metadata-set source-s3-path='s3://'${s3_path} \
+--metadata-set source-cleanup=true \
+--metadata-set product-to-replace=${product_to_replace}${overwrite} "$local_file" CLMS:$s3_path
 rclone_exit_code=$?
 if [ $taring == 1 ]; then
 	rm -v "/tmp/$(basename ${local_file})"
