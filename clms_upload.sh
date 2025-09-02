@@ -204,7 +204,7 @@ rclone -q copy \
 --s3-disable-http2 \
 --s3-no-check-bucket \
 --retries=20 \
---retries-sleep=1 \
+--retries-sleep=1s \
 --low-level-retries=20 \
 --tpslimit=5 \
 --checksum \
