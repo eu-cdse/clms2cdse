@@ -7,7 +7,7 @@
 # Version 1.03 [20250718] better handling of rclone error codes
 # Version 1.04 [20250723] rename "last_modified" attribute which denotes modification time in CLMS producer local storage to "created"
 # Version 1.05 [20250827] proper handling of whitespaces in local path
-# Version 1.06 [20250901] update of the UTM zone of uploaded products, reformating of rclone command, addition of the --retries-sleep to rclone 
+# Version 1.06 [20250901] update of the UTM zone of uploaded products, reformating of rclone command, addition of the --retries-sleep --tps-limit to rclone 
 ###############################
 version="1.06"
 usage()
@@ -206,6 +206,7 @@ rclone -q copy \
 --retries=20 \
 --retries-sleep=1 \
 --low-level-retries=20 \
+--tpslimit=5 \
 --checksum \
 --s3-use-multipart-uploads='false' \
 --metadata \
