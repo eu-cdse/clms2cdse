@@ -1,0 +1,115 @@
+//Comment
+{
+    "type": "Collection",
+    "stac_version": "1.1.0",
+    "stac_extensions": [
+        "https://stac-extensions.github.io/grid/v1.1.0/schema.json", /* REQUIRED IF APPLICABLE */
+        "https://stac-extensions.github.io/processing/v1.2.0/schema.json", /* REQUIRED */
+        "https://stac-extensions.github.io/product/v1.0.0/schema.json", /* REQUIRED */
+        "https://stac-extensions.github.io/projection/v2.0.0/schema.json", /* REQUIRED */
+    ],
+    "id": "<COLLECTION_ID>", /* REQUIRED Collection identifier */
+    "title": "<COLLECTION_TITLE>", /* REQUIRED Short descriptive text that could be used to represent the collection */
+    "description": "<COLLECTION_DESCRIPTION>", /* REQUIRED Detailed multi-line description to explain the collection */
+    "keywords": [
+        "<KEYWORD_1>",
+        "<KEYWORD_2>"
+    ], /* OPTIONAL List of keywords describing the collection */
+    "license": "<LICENSE>", /* REQUIRED Collection's license(s), either a SPDX License identifier, 'various' if multiple licenses apply or 'proprietary' for all other cases */
+    "extent": {
+        "spatial": {
+            "bbox": [
+                [
+                    "<WEST_BOUNDING_LONGITUDE>",
+                    "<SOUTH_BOUNDING_LATITUDE>",
+                    "<EAST_BOUNDING_LONGITUDE>",
+                    "<NORTH_BOUNDING_LATITUDE>"
+                ]
+            ]
+        },
+        "temporal": {
+            "interval": [
+                [
+                    "<START_DATETIME>",
+                    "<END_DATETIME>"
+                ]
+            ]
+        }
+    },
+    "providers": [
+        {
+            "name": "<PROVIDER_NAME>", /* REQUIRED Name of the provider */
+            "roles": [
+                "producer",
+                "licensor"
+            ], /* REQUIRED Roles of the provider */
+            "url": "<PROVIDER_URL>" /* OPTIONAL URL to the provider's website */
+        }
+    ],
+    "summaries": {
+        "created": {
+            "minimum": "<MIN_DATE>",
+            "maximum": "<MAX_DATE>"
+        }, /* REQUIRED. Creation date and time of a product, in UTC. */
+        "datetime": {
+            "minimum": "<MIN_DATE>",
+            "maximum": "<MAX_DATE>"
+        }, /* REQUIRED. The searchable date and time of the assets, which must be in UTC. It is formatted according to RFC 3339, section 5.6." */
+        "end_datetime": {
+            "minimum": "<MIN_DATE>",
+            "maximum": "<MAX_DATE>"
+        }, /* REQUIRED. The last or end date and time for the resource, in UTC. It is formatted as date-time according to RFC 3339, section 5.6. */
+        "grid:code": {
+            "minimum": "<MIN_GRID_CODE>",
+            "maximum": "<MAX_GRID_CODE>"
+        }, /* REQUIRED IF APPLICABLE. https://github.com/stac-extensions/grid#gridcode  */
+        "gsd": {
+            "minimum": "<MIN_GSD>",
+            "maximum": "<MAX_GSD>"
+        }, /* REQUIRED. Ground Sample Distance at the sensor, in meters (m), must be greater than 0. https://github.com/radiantearth/stac-spec/blob/master/commons/common-metadata.md#gsd  */
+        "processing:facility": [
+            "<PROCESSING_FACILITY_1>",
+            "<PROCESSING_FACILITY_2>"
+        ], /* REQUIRED. The name of the facility that produced the data. For example, Copernicus S1 Core Ground Segment - DPA for product of Sentinel-1 satellites. */
+        "processing:level": [
+            "<PROCESSIN_LEVEL_1>",
+            "<PROCESSIN_LEVEL_2>"
+        ], /* REQUIRED. https://github.com/stac-extensions/processing?tab=readme-ov-file#suggested-processing-levels */
+        "product:type": [
+            "<PRODUCT_TYPE_1>",
+            "<PRODUCT_TYPE_2>"
+        ], /* REQUIRED. The product type., */
+        "product:timeliness": {
+            "minimum": "<MIN_TIMELINESS>",
+            "maximum": "<MAX_TIMELINESS>"
+        }, /* REQUIRED. The average expected timeliness of the product as an ISO 8601 Duration., */
+        "proj:code": [
+            "<PROJ_CODE_1>",
+            "<PROJ_CODE_2>"
+        ], /* REQUIRED Authority and specific code of the data source (e.g., EPSG:3857) NULL for data in satellite projection. */
+        "proj:shape": {
+            "ype": "array",
+            "items": {
+                "type": "integer"
+            },
+            minItems: 2,
+            maxItems: 2,
+        } /* REQUIRED Number of pixels in Y and X directions for the default grid */,
+        "start_datetime": {
+            "minimum": "<MIN_DATE>",
+            "maximum": "<MAX_DATE>"
+        }, /* REQUIRED. The first or start date and time for the resource, in UTC. It is formatted as date-time according to RFC 3339, section 5.6 */
+    },
+    "links": [
+        {
+            "rel": "root",
+            "href": "<CDSE_COLLECTION_LINK>",
+            "type": "application/json"
+        },
+        {
+          "rel": "items",
+          "href": "<CDSE_COLLECTION_LINK>/items",
+          "type": "application/geo+json"
+        }
+    ]
+}
