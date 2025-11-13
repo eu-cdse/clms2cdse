@@ -8,9 +8,10 @@
 # Version 1.04 [20250723] rename "last_modified" attribute which denotes modification time in CLMS producer local storage to "created"
 # Version 1.05 [20250827] proper handling of whitespaces in local path
 # Version 1.06 [20250901] update of the UTM zone of uploaded products, reformating of rclone command, addition of the --retries-sleep --tps-limit to rclone 
-# Version 1.07 [20251112] change .tar support logic, add product priority based on temporalRepeatRate, EEA versioning support, fallback to WAW3-2 region if WAW3-1 is unavailable 
+# Version 1.07 [20251111] change .tar support logic, add product priority based on temporalRepeatRate, EEA versioning support, fallback to WAW3-2 region if WAW3-1 is unavailable 
+# Version 1.08 [20251113] add sanity check to verify if the jq, gdal, wget, rclone utilities are installed 
 ###############################
-version="1.07"
+version="1.08"
 usage()
 {
 cat << EOF
@@ -75,6 +76,11 @@ while getopts “b:l:p:r:hov” OPTION; do
 	esac
 done
 #########################################sanity checks
+#verify if jq, gdal, wget, rclone utilities are installed
+if ! [[ $(which jq) && $(which gdalinfo) && $(which ogrinfo) && $(which wget) && $(which rclone) ]]; then
+	echo "ERROR: jq AND gdalinfo AND wget AND rclone utilities must be installed!"
+	exit 1
+fi
 #verify if bucket was set
 if [ -z $bucket ]; then
 	echo "ERROR: Bucket name must be specified!"
@@ -136,7 +142,6 @@ else
 		fi
 	fi
 fi
-
 
 #verify if json STAC file within a .tar product is valid
 if [ "${local_file##*.}" == "tar" ]; then
