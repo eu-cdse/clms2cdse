@@ -53,6 +53,25 @@
         ]
     },
     "properties": {
+		"_private": { /* Attributes not to be shown in STAC */
+			"odata": { /* Attributes to be shown in OData */
+				"areaOfInterest":"<STRING>", /* REQUIRED. A human-readable name of the relevant region.	e.g. 'global', 'europe'  */
+				"component":"<STRING>", /* REQUIRED. Component to which the dataset belongs. e.g. 'bio-geophysical', 'landcover_landuse'  */
+				"consolidationPeriod":"<NUMBER>", /* OPTIONAL. Consolidation period for the collection where multiple consolidations are produced. e.g. 0;1;2;5;6 */
+				"datasetAlias":"<STRING>", /* REQUIRED. Provides an alias to group multiple datasets with same product category e.g. "" */
+				"datasetIdentifier":"<STRING>", /* REQUIRED. Uniquely identifies the dataset. The dataset is a group of  products belonging to the same dataset / collection / parentIdentifier. e.g. 'ndvi_global_1km_10daily_v3' */
+				"datasetShortName":"<STRING>", /* REQUIRED. Short name for the dataset e.g. 'ndvi' */
+				"fileFormat":"<STRING>", /* REQUIRED. Format of the product. e.g. 'cog'  */
+				"gridLabel":"<STRING>", /* REQUIRED. Labels the nominal grid spacing in the format as been used in the datasetIdentifier, including the unit. e.g. '1km' */
+				"instrumentShortName": "<STRING>", /* REQUIRED. List of the instruments providing the acquisitions used for producing the product. If multiple values, use comma seperator without whitespace. e.g. 'VEGETATION,OLCI,SLSTR' */
+				"platformAcronym":"<STRING>", /* REQUIRED. List of the platformAcronyms providing the acquisitions used for producing the product. If multiple values, use comma seperator without whitespace. e.g. 'SPOT4,S3A,S3B' */
+				"platformShortName":"<STRING>", /* REQUIRED. List of the platformShortNames providing the acquisitions used for producing the product. If multiple values, use comma seperator without whitespace. e.g. 'SPOT4,SENTINEL3A,SENTINEL3B' */
+				"missionShortName":"<STRING>", /* REQUIRED. List of the platforms providing the acquisitions used for producing the product. (All platforms in uppercase.) If multiple values, use comma seperator without whitespace. e.g 'SPOT4,SENTINEL3' */
+				"nominalDate":"<DATE>", /* REQUIRED. The nominal date is the reference date for the data acquisition period covered by the product. This date will be used to extract YYYY/MM/DD in the folderstructure. e.g. '1999-01-01T00:00:00Z'  */
+				"SDIResourceIdentifier":"<STRING>", /* REQUIRED. Resource identifier on the EEA SDI collection catalogue portal (https://sdi.eea.europa.eu/catalogue/srv/eng/catalog.search).  If multiple values, use comma seperator without whitespace. e.g. 'copernicus_r_3035_10_m_ua-bh-2012_p_2012_v03_r00,copernicus_r_3035_10_m_ua-bh-2012_p_2011-2014_v02_r00' */
+				"temporalRepeatRate":"<STRING>" /* REQUIRED. Frequency of the product generation e.g. '10daily' */
+			}
+		},
     	"auth:schemes":"<OBJECT>", /* ADDED BY CDSE */
         "created":"<DATE>", /* REQUIRED. Creation date and time of a product, in UTC. */
         "datetime":"<DATE>", /* REQUIRED. The searchable date and time of the assets, which must be in UTC. It is formatted according to RFC 3339, section 5.6." */
@@ -115,20 +134,25 @@
     "collection":"<CDSE_COLLECTION_NAME>", /* REQUIRED */
     "links": [
 	{
-        	"rel":"collection",
-        	"href":"<CDSE_COLLECTION_LINK>",
-        	"type":"application/json"
-        },
-        {
-        	"rel":"parent",
-        	"href":"<CDSE_COLLECTION_LINK>",
-        	"type":"application/json"
-        },
-        {
-        	"rel":"root",
-        	"href":"https://stac.dataspace.copernicus.eu/v1/",
-        	"type":"application/json"
-        },
+		"rel":"collection",
+		"href":"<CDSE_COLLECTION_LINK>",
+		"type":"application/json"
+	},
+	{
+		"rel":"parent",
+		"href":"<CDSE_COLLECTION_LINK>",
+		"type":"application/json"
+	},
+	{
+		"rel":"root",
+		"href":"https://stac.dataspace.copernicus.eu/v1/",
+		"type":"application/json"
+	},
+	{
+		"rel":"SDIResourceIdentifier", /* REQUIRED. */
+		"href":"<Relevant URL from https://sdi.eea.europa.eu/catalogue/srv/eng/catalog.search>",
+		"type":"text/html"
+	},
 	{ /* ADDED BY CDSE */
 		"rel": "self",
 		"type": "application/geo+json",
