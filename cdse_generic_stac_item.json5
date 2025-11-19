@@ -149,7 +149,7 @@
 		"type":"application/json"
 	},
 	{
-		"rel":"SDIResourceIdentifier", /* REQUIRED. */
+		"rel":"SDI_URL", /* REQUIRED. */
 		"href":"<Relevant URL from https://sdi.eea.europa.eu/catalogue/srv/eng/catalog.search>",
 		"type":"text/html"
 	},
