@@ -10,8 +10,9 @@
 # Version 1.06 [20250901] update of the UTM zone of uploaded products, reformating of rclone command, addition of the --retries-sleep --tps-limit to rclone 
 # Version 1.07 [20251111] change .tar support logic, add product priority based on temporalRepeatRate, EEA versioning support, fallback to WAW3-2 region if WAW3-1 is unavailable 
 # Version 1.08 [20251113] add sanity check to verify if the jq, gdal, wget, rclone utilities are installed 
+# Version 1.09 [20251121] handling of files >=5GB, documentation improvement related to creation of .tar files for multi-file products
 ###############################
-version="1.08"
+version="1.09"
 usage()
 {
 cat << EOF
@@ -32,6 +33,22 @@ clms_upload.sh -b CLMS-YOUR-BUCKET-NAME -l "/tmp/c_gls_NDVI_200503110000_GLOBE_V
 #Batch upload of all NetCDF files residing localy in /home/ubuntu directory in 5 parallel sessions:
 find /home/ubuntu -name "*.nc" | xargs -l -P 5 bash -c 'clms_upload.sh -b CLMS-YOUR-BUCKET-NAME -l "$0"'
 #
+####### Requirements for .tar file creation for multi-file products 
+# 
+# 1) .tar file should be named exactly as the final product in the CDSE catalogue with *.tar suffix e.g. clms_ETA300_202111010000_GLOBE_S3_V1.0.1_cog.tar
+# 2) .tar file should contain a single folder at root level named exactly as the final product in the CDSE with *.tar suffix e.g. ./clms_ETA300_202111010000_GLOBE_S3_V1.0.1_cog
+# 3) outside of the folder in .tar (at root level ./) the technical files should be stored e.g. *_stac.json metadata, quicklook. These files ARE NOT PART OF THE PRODUCT. 
+# to create a .tar file please use
+tar cf /tmp/clms_ETA300_202111010000_GLOBE_S3_V1.0.1_cog.tar ./
+# to see the structure of the tar file 
+tar tf /tmp/clms_ETA300_202111010000_GLOBE_S3_V1.0.1_cog.tar
+# the output should look like:
+./
+./clms_ETA300_202111010000_GLOBE_S3_V1.0.1_cog_stac.json
+./clms_ETA300_202111010000_GLOBE_S3_V1.0.1_cog/
+./clms_ETA300_202111010000_GLOBE_S3_V1.0.1_cog/some_subfolder/
+./clms_ETA300_202111010000_GLOBE_S3_V1.0.1_cog/some_subfolder/some_raster.tif
+./clms_ETA300_202111010000_GLOBE_S3_V1.0.1_cog/some_metadata.xml
 ################################################################
 OPTIONS:
    -b	   [REQUIRED] bucket name to upload to specific to a producer e.g. CLMS-YOUR-BUCKET-NAME
@@ -231,6 +248,12 @@ timestamp=$(date -u -d now '+%Y-%m-%dT%H:%M:%SZ')
 file_size=$(du -smb --apparent-size "$local_file" | cut -f1)
 md5_checksum=$(md5sum -b "$local_file" | cut -c-32)
 
+if [ $file_size -lt 5000000000 ]; then
+	multipart_flag='false'
+else
+	multipart_flag='true'
+fi
+
 #upload product
 rclone -q copy \
 --s3-disable-http2 \
@@ -240,7 +263,7 @@ rclone -q copy \
 --low-level-retries=20 \
 --tpslimit=5 \
 --checksum \
---s3-use-multipart-uploads='false' \
+--s3-use-multipart-uploads=$multipart_flag \
 --metadata \
 --metadata-set odp-priority=$priority \
 --metadata-set clms-upload-version=$version \
