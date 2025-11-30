@@ -11,8 +11,9 @@
 # Version 1.07 [20251111] change .tar support logic, add product priority based on temporalRepeatRate, EEA versioning support, fallback to WAW3-2 region if WAW3-1 is unavailable 
 # Version 1.08 [20251113] add sanity check to verify if the jq, gdal, wget, rclone utilities are installed 
 # Version 1.09 [20251121] handling of files >=5GB, documentation improvement related to creation of .tar files for multi-file products
+# Version 1.10 [20251139] add -i (invisible) flag to upload a product which should not be immediately public and it should be released at certain date.
 ###############################
-version="1.09"
+version="1.10"
 usage()
 {
 cat << EOF
@@ -29,6 +30,8 @@ export RCLONE_CONFIG_CLMS_PROVIDER='Ceph'
 #
 # Single file upload:
 clms_upload.sh -b CLMS-YOUR-BUCKET-NAME -l "/tmp/c_gls_NDVI_200503110000_GLOBE_VGT_V3.0.1.nc"
+# Single upload of not public dataset (to be released at certain date):
+clms_upload.sh -i -b CLMS-YOUR-BUCKET-NAME -l "/tmp/c_gls_NDVI_200503110000_GLOBE_VGT_V3.0.1.nc"
 #
 #Batch upload of all NetCDF files residing localy in /home/ubuntu directory in 5 parallel sessions:
 find /home/ubuntu -name "*.nc" | xargs -l -P 5 bash -c 'clms_upload.sh -b CLMS-YOUR-BUCKET-NAME -l "$0"'
@@ -53,6 +56,7 @@ tar tf /tmp/clms_ETA300_202111010000_GLOBE_S3_V1.0.1_cog.tar
 OPTIONS:
    -b	   [REQUIRED] bucket name to upload to specific to a producer e.g. CLMS-YOUR-BUCKET-NAME
    -h      this message
+   -i	   [OPTIONAL] flag indicating if a dataset should not be immediately published after ingestion to CDSE. Useful only for data sets to be released at specific date.
    -l      [REQUIRED] local path (i.e. file system) path to input file or a directory with CLMS product name containing product files (e.g. COGs & STAC JSON metadata) 
    -o      [OPTIONAL] shall input file in the CLMS-YOUR-BUCKET-NAME bucket in the CDSE staging storage be overwritten?
    -p      [OPTIONAL] job priority ranging 0-9. Higher priority indicates that a CLMS product will be ingested faster. Default 3.  
@@ -61,7 +65,8 @@ OPTIONS:
    -v      clms_upload.sh version
 EOF
 }
-while getopts “b:l:p:r:hov” OPTION; do
+invisible='false'
+while getopts “b:l:p:r:hiov” OPTION; do
 	case $OPTION in
 		b)
 			bucket=$OPTARG
@@ -69,6 +74,9 @@ while getopts “b:l:p:r:hov” OPTION; do
 		h)
 			usage
 			exit 0
+			;;
+		i)
+			invisible='true'
 			;;
 		l)
 			local_file="${OPTARG%/}"
@@ -269,6 +277,7 @@ rclone -q copy \
 --metadata-set clms-upload-version=$version \
 --metadata-set uploaded=$timestamp \
 --metadata-set WorkflowName="clms_upload" \
+--metadata-set invisible=$invisible \
 --metadata-set source-s3-endpoint-url=$RCLONE_CONFIG_CLMS_ENDPOINT \
 --metadata-set file-size=$file_size \
 --metadata-set md5=$md5_checksum \
