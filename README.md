@@ -72,3 +72,9 @@ docker: permission denied while trying to connect to the Docker daemon socket at
 ```
 docker run -it -v /home/JohnLane:/home/ubuntu -e RCLONE_CONFIG_CLMS_ACCESS_KEY_ID=YOUR_CLMS_PUBLIC_S3_KEY -e RCLONE_CONFIG_CLMS_SECRET_ACCESS_KEY=YOUR_CLMS_PRIVATE_S3_KEY clms2cdse clms_upload.sh -b CLMS-YOUR-BUCKET-NAME -l /tmp/c_gls_NDVI_200503110000_GLOBE_VGT_V3.0.1.nc
 ```
+# conversion of the vector products to CDSE compatibile format
+Conversion of the vector files (e.g.) to [FlatGeobuf](https://gdal.org/en/stable/drivers/vector/flatgeobuf.html) format is straightforward and can be achieved with the GDAL [ogr2ogr](https://gdal.org/en/stable/programs/ogr2ogr.html) utility:
+```
+ogr2ogr -f FlatGeobuf output.fgb input.shp
+```
+
