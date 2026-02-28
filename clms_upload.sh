@@ -12,8 +12,9 @@
 # Version 1.08 [20251113] add sanity check to verify if the jq, gdal, wget, rclone utilities are installed 
 # Version 1.09 [20251121] handling of files >=5GB, documentation improvement related to creation of .tar files for multi-file products
 # Version 1.10 [20251139] add -i (invisible) flag to upload a product which should not be immediately public and it should be released at certain date.
+# Version 1.11 [20260218] add product UUID change the default ODP priority to 2.
 ###############################
-version="1.10"
+version="1.11"
 usage()
 {
 cat << EOF
@@ -59,7 +60,7 @@ OPTIONS:
    -i	   [OPTIONAL] flag indicating if a dataset should not be immediately published after ingestion to CDSE. Useful only for data sets to be released at specific date.
    -l      [REQUIRED] local path (i.e. file system) path to input file or a directory with CLMS product name containing product files (e.g. COGs & STAC JSON metadata) 
    -o      [OPTIONAL] shall input file in the CLMS-YOUR-BUCKET-NAME bucket in the CDSE staging storage be overwritten?
-   -p      [OPTIONAL] job priority ranging 0-9. Higher priority indicates that a CLMS product will be ingested faster. Default 3.  
+   -p      [OPTIONAL] job priority ranging 1-3. Higher priority indicates that a CLMS product will be ingested faster. Default 2.  
    -r      [OPTIONAL] product name(s) to be replaced/patched by the product to uploaded. 
 		   If more than one product needs to be replaced (e.g. NetCDF & COGs) than comma-separated list of names should be provided.
    -v      clms_upload.sh version
@@ -234,15 +235,15 @@ fi
 
 #try to set ingestion priority for the product to be uploaded
 if [ -z "$priority" ]; then
-    priority=3
+    priority=2
     odata_product=$(wget -qO - 'https://catalogue.dataspace.copernicus.eu/odata/v1/Products?$filter=(Collection/Name%20eq%20%27CLMS%27%20and%20startswith(Name,%27'$(basename "${local_file}" | cut -f 1-3 -d "_")'%27))&$top=1&$expand=Attributes')
     temporalRepeatRate=$(echo "$odata_product" | jq -r '.value[].Attributes[] | select(.Name=="temporalRepeatRate") | .Value')
     case "$temporalRepeatRate" in
         hourly)
-            priority=7
+            priority=3
             ;;
         daily)
-            priority=5
+            priority=2
             ;;
     esac
 fi
@@ -274,6 +275,7 @@ rclone -q copy \
 --s3-use-multipart-uploads=$multipart_flag \
 --metadata \
 --metadata-set odp-priority=$priority \
+--metadata-set product-uuid=$(cat /proc/sys/kernel/random/uuid) \
 --metadata-set clms-upload-version=$version \
 --metadata-set uploaded=$timestamp \
 --metadata-set WorkflowName="clms_upload" \
