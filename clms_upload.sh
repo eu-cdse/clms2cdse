@@ -12,7 +12,7 @@
 # Version 1.08 [20251113] add sanity check to verify if the jq, gdal, wget, rclone utilities are installed 
 # Version 1.09 [20251121] handling of files >=5GB, documentation improvement related to creation of .tar files for multi-file products
 # Version 1.10 [20251139] add -i (invisible) flag to upload a product which should not be immediately public and it should be released at certain date.
-# Version 1.11 [20260218] add product UUID change the default ODP priority to 2.
+# Version 1.11 [20260218] add product UUID change the default ODP priority to 1.
 ###############################
 version="1.11"
 usage()
@@ -235,15 +235,15 @@ fi
 
 #try to set ingestion priority for the product to be uploaded
 if [ -z "$priority" ]; then
-    priority=2
+    priority=0
     odata_product=$(wget -qO - 'https://catalogue.dataspace.copernicus.eu/odata/v1/Products?$filter=(Collection/Name%20eq%20%27CLMS%27%20and%20startswith(Name,%27'$(basename "${local_file}" | cut -f 1-3 -d "_")'%27))&$top=1&$expand=Attributes')
     temporalRepeatRate=$(echo "$odata_product" | jq -r '.value[].Attributes[] | select(.Name=="temporalRepeatRate") | .Value')
     case "$temporalRepeatRate" in
         hourly)
-            priority=3
+            priority=2
             ;;
         daily)
-            priority=2
+            priority=1
             ;;
     esac
 fi
