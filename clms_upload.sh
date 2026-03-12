@@ -13,8 +13,10 @@
 # Version 1.09 [20251121] handling of files >=5GB, documentation improvement related to creation of .tar files for multi-file products
 # Version 1.10 [20251139] add -i (invisible) flag to upload a product which should not be immediately public and it should be released at certain date.
 # Version 1.11 [20260218] add product UUID change the default ODP priority to 1.
+# Version 1.12 [20260312] add -c to (re)cogification of the TIFFs/COGs to COGs compliant with the CDSE requirements: https://documentation.dataspace.copernicus.eu/APIs/SentinelHub/Byoc.html#constraints-and-settings
+#						  add -w processing workflow name. To be used after CDSE approval.  					
 ###############################
-version="1.11"
+version="1.12"
 usage()
 {
 cat << EOF
@@ -56,21 +58,28 @@ tar tf /tmp/clms_ETA300_202111010000_GLOBE_S3_V1.0.1_cog.tar
 ################################################################
 OPTIONS:
    -b	   [REQUIRED] bucket name to upload to specific to a producer e.g. CLMS-YOUR-BUCKET-NAME
+   -c	   [OPTIONAL] (re)cogification of the TIFFs/COGs to COGs compliant with the CDSE requirements. To be used after CDSE aproval. Default: false 
    -h      this message
    -i	   [OPTIONAL] flag indicating if a dataset should not be immediately published after ingestion to CDSE. Useful only for data sets to be released at specific date.
    -l      [REQUIRED] local path (i.e. file system) path to input file or a directory with CLMS product name containing product files (e.g. COGs & STAC JSON metadata) 
    -o      [OPTIONAL] shall input file in the CLMS-YOUR-BUCKET-NAME bucket in the CDSE staging storage be overwritten?
-   -p      [OPTIONAL] job priority ranging 1-3. Higher priority indicates that a CLMS product will be ingested faster. Default 2.  
+   -p      [OPTIONAL] job priority ranging 0-2. Higher priority indicates that a CLMS product will be ingested faster. Default 1.  
    -r      [OPTIONAL] product name(s) to be replaced/patched by the product to uploaded. 
 		   If more than one product needs to be replaced (e.g. NetCDF & COGs) than comma-separated list of names should be provided.
+   -w      [OPTIONAL] Processing workflow name. To be used after CDSE approval. Default 'cdse_upload'
    -v      clms_upload.sh version
 EOF
 }
 invisible='false'
-while getopts “b:l:p:r:hiov” OPTION; do
+cogify='false'
+WorkflowName='cdse_upload'
+while getopts “b:c:l:p:r:hiovw:” OPTION; do
 	case $OPTION in
 		b)
 			bucket=$OPTARG
+			;;
+		c)
+			cogify='true'
 			;;
 		h)
 			usage
@@ -235,7 +244,7 @@ fi
 
 #try to set ingestion priority for the product to be uploaded
 if [ -z "$priority" ]; then
-    priority=0
+    priority=1
     odata_product=$(wget -qO - 'https://catalogue.dataspace.copernicus.eu/odata/v1/Products?$filter=(Collection/Name%20eq%20%27CLMS%27%20and%20startswith(Name,%27'$(basename "${local_file}" | cut -f 1-3 -d "_")'%27))&$top=1&$expand=Attributes')
     temporalRepeatRate=$(echo "$odata_product" | jq -r '.value[].Attributes[] | select(.Name=="temporalRepeatRate") | .Value')
     case "$temporalRepeatRate" in
@@ -274,11 +283,12 @@ rclone -q copy \
 --checksum \
 --s3-use-multipart-uploads=$multipart_flag \
 --metadata \
+--metadata-set cogify=$cogify \
 --metadata-set odp-priority=$priority \
 --metadata-set product-uuid=$(cat /proc/sys/kernel/random/uuid) \
 --metadata-set clms-upload-version=$version \
 --metadata-set uploaded=$timestamp \
---metadata-set WorkflowName="clms_upload" \
+--metadata-set WorkflowName=$WorkflowName \
 --metadata-set invisible=$invisible \
 --metadata-set source-s3-endpoint-url=$RCLONE_CONFIG_CLMS_ENDPOINT \
 --metadata-set file-size=$file_size \
