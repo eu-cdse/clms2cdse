@@ -73,7 +73,7 @@ EOF
 invisible='false'
 cogify='false'
 WorkflowName='cdse_upload'
-while getopts “b:c:l:p:r:hiovw:” OPTION; do
+while getopts “b:l:p:r:w:chiov” OPTION; do
 	case $OPTION in
 		b)
 			bucket=$OPTARG
@@ -103,6 +103,9 @@ while getopts “b:c:l:p:r:hiovw:” OPTION; do
 		v)
 			echo version $version
 			exit 0
+			;;
+		w)
+			WorkflowName=$OPTARG
 			;;
 		?)
 			usage
