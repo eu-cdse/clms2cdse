@@ -1,0 +1,77 @@
+{
+  "id": "<STRING>", /* REQUIRED. Unique id of a collection that cannot already exist in the CDSE STAC catalogue */
+  "type": "Collection",
+  "title": "<STRING>", /* REQUIRED. Title of a collection */
+  "description": "<STRING>", /* REQUIRED. Informative sentences describing the collection. */
+  "extent": {
+    "spatial": {
+      "bbox": [
+        [<INTEGER>, <INTEGER>, <INTEGER>, <INTEGER>] /* REQUIRED. Bounding box for the collection in format [Lon_min, Lat_min, Lon_max, Lat_max] */
+      ]
+    },
+    "temporal": {
+      "interval": [
+        [
+          "YYYY-MM-DDTHH:mm:SSZ", /* REQUIRED. Datetime of a collection start in UTC timezone. */
+          "YYYY-MM-DDTHH:mm:SSZ" /* REQUIRED. Datetime of a collection end in UTC timezone. If the collection is still on-going then put 'null'. */
+        ]
+      ]
+    }
+  },
+  "license": "other",  
+  "links": [
+    {
+        "rel":"SDI_URL", 
+        "href":"<STRING>", /* REQUIRED. eg. https://sdi.eea.europa.eu/catalogue/srv/eng/catalog.search#/metadata/39e1ff33-01d9-45c2-9edc-00924383f34f */
+        "type":"text/html",
+        "title": "EEA geospatial data catalogue"
+    },
+    {
+      "rel": "license",
+      "href": "https://land.copernicus.eu/en/data-policy",
+      "type": "text/html",
+      "title": "Legal notice on the use of CLMS data"
+    }
+  ],
+  "keywords": [ /* REQUIRED. Comma separated list of keywords for the collection. These will be used for the fast free-text search filtering. */
+    "<STRING>",
+    "<STRING>"
+  ],
+  "providers": [
+    {
+      "url": "<STRING>", /* REQUIRED. HTTPs link to the PRVIDER provider webpage. */
+      "name": "<STRING>", /* REQUIRED. Name of the PROVIDER provider. */
+      "roles": [
+        "producer"
+      ]
+    },
+    {
+      "url": "https://commission.europa.eu/",
+      "name": "European Comission", 
+      "roles": [
+        "licensor"
+      ]
+    },
+    {
+      "url": "https://cloudferro.com/",
+      "name": "CloudFerro",
+      "roles": [
+        "host"
+      ]
+    }
+  ],
+  "assets": { /* OPTIONAL if thumbnail not provided */
+    "thumbnail": {
+      "href": "<STRING>", /* REQUIRED if thumbnail provided. Public https link to the collection thumbnail in JPEG format. */
+      "type": "image/jpeg",
+      "roles": [
+        "thumbnail"
+      ],
+      "title": "Thumbnail",
+      "proj:code": null,
+      "proj:shape": [<INTEGER>, <INTEGER>] /* REQUIRED if thumbnail provided. Number of lines and columns of the collection thumbnail. */
+    }
+  },
+  "sci:doi": "<STRING>", /* OPTIONAL. DOI reference to the collection if exists. */
+  "sci:citation": "<STRING>", /* Optional. Text how to cite the collection. */
+}
