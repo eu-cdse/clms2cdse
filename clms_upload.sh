@@ -14,9 +14,10 @@
 # Version 1.10 [20251139] add -i (invisible) flag to upload a product which should not be immediately public and it should be released at certain date.
 # Version 1.11 [20260218] add product UUID change the default ODP priority to 1.
 # Version 1.12 [20260312] add -c to (re)cogification of the TIFFs/COGs to COGs compliant with the CDSE requirements: https://documentation.dataspace.copernicus.eu/APIs/SentinelHub/Byoc.html#constraints-and-settings
-#						  add -w processing workflow name. To be used after CDSE approval.  					
+#						  add -w processing workflow name. To be used after CDSE approval.
+# Version 1.13 [20260420] verify if there are any tif/cog/nc raster data in the tar file
 ###############################
-version="1.12"
+version="1.13"
 usage()
 {
 cat << EOF
@@ -159,7 +160,12 @@ if [ "${local_file##*.}" == "tar" ]; then
         echo "ERROR: TAR file does not contain the folder named '$(basename ${local_file%.*})' containing all the product files."
         exit 8
     fi
-	for gdal_product in $(tar tf $local_file | grep -E '.tif|.nc' | grep -vE '.tif.|.nc.' |  cut -c3- | sed "s|^|${local_file}/|"); do
+	gdal_products=$(tar tf $local_file | grep -E '.tif|.nc' | grep -vE '.tif.|.nc.' |  cut -c3- | sed "s|^|${local_file}/|")
+	if [ -z "$gdal_products" ]; then
+		echo "ERROR: TAR file does not contain any NetCDF of GeoTiff/COG products."
+		exit 17
+	fi
+	for gdal_product in $(printf $gdal_products); do
 		echo $gdal_product
 		gdalinfo /vsitar/${gdal_product} > /dev/null 2>&1
 		if [ $? -ne 0 ]; then
