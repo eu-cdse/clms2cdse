@@ -16,8 +16,9 @@
 # Version 1.12 [20260312] add -c to (re)cogification of the TIFFs/COGs to COGs compliant with the CDSE requirements: https://documentation.dataspace.copernicus.eu/APIs/SentinelHub/Byoc.html#constraints-and-settings
 #						  add -w processing workflow name. To be used after CDSE approval.
 # Version 1.13 [20260420] verify if there are any tif/cog/nc raster data in the tar file
+# Version 1.14 [20260721] improve product versioning for EEA datasets
 ###############################
-version="1.13"
+version="1.14"
 usage()
 {
 cat << EOF
@@ -198,7 +199,7 @@ if [ "${local_file##*.}" == "tar" ]; then
 	done
 fi
 #check JRC product versioning
-if [ $(basename "$local_file" | tr -dc '.' | wc -c) -eq 3 ]; then
+if [[ "$local_file" =~ ^.*V[0-9].[0-9].[0-9] ]]; then
 	#verify path number is not 0
 	patch_number=$(echo "$local_file" | rev | cut -f 2 -d '.' | tr -cd '0-9')
 	if [ $patch_number -eq 0 ]; then
@@ -217,9 +218,7 @@ if [ $(basename "$local_file" | tr -dc '.' | wc -c) -eq 3 ]; then
 			exit 13
 		fi
 	fi
-fi
-#check EEA product versioning
-if [[ "$local_file" =~ ^.*V[0-9]{3}$ ]]; then
+elif [[ "$local_file" =~ ^.*V[0-9]{3}.tar ]]; then #check EEA product versioning V100 for HR-WSI
 	patch_number=$(echo ${local_file%.*} | tail -c 3 | bc)
 	#verify if the previous product version exists
 	odata_product=$(wget -qO - 'https://catalogue.dataspace.copernicus.eu/odata/v1/Products?$filter=(Collection/Name%20eq%20%27CLMS%27%20and%20startswith(Name,%27'$(basename "${local_file%.*}" | sed "s/..$//")'%27))&$orderby=Name%20desc')
@@ -227,12 +226,29 @@ if [[ "$local_file" =~ ^.*V[0-9]{3}$ ]]; then
 		if [ -z $rep ]; then
 			product_to_replace=$(printf "$odata_product" |  jq -r '.value[].Name' | paste -sd, -)
 		fi
-		odata_patch_number=$(printf "$odata_product" |  jq '.value[0].Name' | tail -c 3 | bc)
+		odata_patch_number=$(printf "$odata_product" |  jq -r '.value[0].Name' | tail -c 3 | bc)
 		if [ $patch_number -ne $((${odata_patch_number}+1)) ]; then
-			echo "ERROR: Patch version in CDSE is ${odata_patch_number} and the patch number of the product uploaded product should be $((${odata_patch_number}+1)) but it is ${patch_number}!"
+			echo "ERROR: Revision version in CDSE is ${odata_patch_number} and the patch number of the product uploaded product should be $((${odata_patch_number}+1)) but it is ${patch_number}!"
 			exit 14
 		fi
 	fi
+elif [[ "$local_file" =~ ^.*V[0-9]{2}_R[0-9]{2}.tar ]]; then #check EEA product versioning V100 for HR-WSI	
+	patch_number=$(echo ${local_file%.*} | tail -c 3 | bc)
+	#verify if the previous product version exists
+	odata_product=$(wget -qO - 'https://catalogue.dataspace.copernicus.eu/odata/v1/Products?$filter=(Collection/Name%20eq%20%27CLMS%27%20and%20startswith(Name,%27'$(basename "${local_file%.*}" | sed "s/..$//")'%27))&$orderby=Name%20desc')
+	if [ $(printf "$odata_product" | jq '.value|length') -gt 0 ]; then
+		if [ -z $rep ]; then
+			product_to_replace=$(printf "$odata_product" |  jq -r '.value[].Name' | paste -sd, -)
+		fi
+		odata_patch_number=$(printf "$odata_product" |  jq -r '.value[0].Name' | tail -c 3 | bc)
+		if [ $patch_number -ne $((${odata_patch_number}+1)) ]; then
+			echo "ERROR: Revision version in CDSE is ${odata_patch_number} and the patch number of the product uploaded product should be $((${odata_patch_number}+1)) but it is ${patch_number}!"
+			exit 15
+		fi
+	fi
+else
+	echo "ERROR: Not recognized product versioning. It should be either V1.0.1 or V100 or V10_R00"
+	exit 16
 fi
 
 #verify product to replace
@@ -242,7 +258,7 @@ if [ ! -z $rep ]; then
 		product_to_replace=$(printf "$rep_product" |  jq -r '.value[].Name' | paste -sd, -)
 	else
 		echo "ERROR: Product to be patched does not exist in the CDSE: $rep"
-		exit 15
+		exit 17
 	fi
 fi
 
@@ -310,7 +326,7 @@ rclone -q copy \
 rclone_exit_code=$?
 if [ $rclone_exit_code != 0 ]; then
 	echo "ERROR: rclone exit code:$rclone_exit_code. Failed to upload $local_file to s3://${s3_path}"
- 	exit 16
+ 	exit 18
 else 
 	echo "SUCCESS: Uploaded $local_file to s3://${s3_path} in ${RCLONE_CONFIG_CLMS_ENDPOINT} endpoint!"
  	exit 0
