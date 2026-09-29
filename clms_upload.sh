@@ -17,8 +17,9 @@
 #						  add -w processing workflow name. To be used after CDSE approval.
 # Version 1.13 [20260420] verify if there are any tif/cog/nc raster data in the tar file
 # Version 1.14 [20260721] improve product versioning for EEA datasets
+# Version 1.15 [20260721] relaxing the requirements regarding the product versioning
 ###############################
-version="1.14"
+version="1.15"
 usage()
 {
 cat << EOF
@@ -246,9 +247,6 @@ elif [[ "$local_file" =~ ^.*V[0-9]{2}_R[0-9]{2}.tar ]]; then #check EEA product 
 			exit 15
 		fi
 	fi
-else
-	echo "ERROR: Not recognized product versioning. It should be either V1.0.1 or V100 or V10_R00"
-	exit 16
 fi
 
 #verify product to replace
