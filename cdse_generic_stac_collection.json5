@@ -1,8 +1,8 @@
 {
-  "id": "<STRING>", /* REQUIRED. Unique id of a collection that cannot already exist in the CDSE STAC catalogue */ #There shall also be guidance/naming convention on how to create a collection ID, so it is aligned across all CLMS collections.  
+  "id": "<STRING>", /* REQUIRED. Unique id of a collection that cannot already exist in the CDSE STAC catalogue Product naming convention is provided at https://eea.github.io/CLMS_documents/develop/guidelines/filenaming_clms-filenaming_design-principles_v1.html */  
   "type": "Collection",
-  "title": "<STRING>", /* REQUIRED. Title of a collection */ #For CLMS collections shall it always start with CLMS or not? This seems to be the case for all the collections except the EEA Water, Snow and Ice
-  "description": "<STRING>", /* REQUIRED. Informative sentences describing the collection. */ #Shall there be set a maximum number of characters for the description?
+  "title": "<STRING>", /* REQUIRED. Title of a collection. It has to start with "CLMS" */ 
+  "description": "<STRING>", /* REQUIRED. Informative sentences describing the collection. Not longer then 1000 characters. */ 
   "extent": {
     "spatial": {
       "bbox": [
@@ -33,16 +33,16 @@
       "title": "Legal notice on the use of CLMS data"
     }
   ],
-  "keywords": [ /* REQUIRED. Comma separated list of keywords for the collection. These will be used for the fast free-text search filtering. */ #Also good idea to agree on maybe a set of keywords that shall be mandatory for? Also, on the set of rules, for example, acronyms/no acronyms, capital letter/no capital letters
+  "keywords": [ /* REQUIRED. Comma separated list of keywords for the collection. These will be used for the fast free-text search filtering. Lower case recommended. */ 
     "<STRING>",
     "<STRING>"
   ],
-  "providers": [
+  "providers": [ /* For reference please visit: https://github.com/radiantearth/stac-spec/blob/master/collection-spec/collection-spec.md#provider-object */
     {
       "url": "<STRING>", /* REQUIRED. HTTPs link to the PRVIDER provider webpage. */
       "name": "<STRING>", /* REQUIRED. Name of the PROVIDER provider. */
       "roles": [
-        "producer" #At this point, there are options of producer, licensor, processor and host. Shall all of them be mentioned here? What do we mean about the processor? Processor of the data, metadata? There are usually multiple companies forming the consortium. Overall, shall we mention the companies that are involved in the production of the data? 
+        "producer" /* It can be defined mulptiple times in case the collection was generator by many produsers */
       ]
     },
     {
@@ -54,25 +54,12 @@
     },
     {
       "url": "https://cloudferro.com/",
-      "name": "CloudFerro", #do we really need to mention CloudFerro at all? If a host is needed, maybe there then it shall be mentioned CDSE. 
+      "name": "CloudFerro", 
       "roles": [
         "host"
       ]
     }
   ],
-  "summaries": {
-  "gsd": [<NUMBER>], /* if applicable to raster products */
-  "MMU": [<NUMBER>], /* custom field if approved for vector products */
-  "proj:code": ["<STRING>"],
-  "product:type": ["<STRING>"], /* REQUIRED. Product type */
-  "product:component": ["<STRING>"], /* REQUIRED. Product component */
-  "product:temporal repeat rate": ["<STRING>"], /* REQUIRED. Product temporal repeat rate */ #this is metadata coming from Odata
-  "product:dataset short name": ["<STRING>"], /* REQUIRED. Product temporal repeat rate */# this is also coming from Odata
-  "product:dataset alias": ["<STRING>"], /* REQUIRED. Product temporal repeat rate */# this is also coming from Odata
-  "product:dataset identifier": ["<STRING>"], /* REQUIRED. Dataset identifier */
-  "processing:version": ["<STRING>"] /* REQUIRED. Product version #or dataset version?
-}
-
   "contacts": [
   {
     "name": "Copernicus Land Monitoring Service",
@@ -98,9 +85,8 @@
         "title": "Homepage of the Copernicus Land Monitoring Service"
       }
     ]
-  },
-  ] # This is for bringing to your attention, that some of the collections include also a contact section. The information in this section is somewhat redundant, and maybe shall not be provided. For example, e-mail address and telephone number.
-
+  }
+  ],
   "assets": { /* OPTIONAL if thumbnail not provided */
     "thumbnail": {
       "href": "<STRING>", /* REQUIRED if thumbnail provided. Public https link to the collection thumbnail in JPEG format. */
@@ -122,23 +108,6 @@
         "platform": "https://eodata.dataspace.copernicus.eu",
         "description": "This endpoint provides access to EO data which is stored on the object storage of both CloudFerro Cloud and OpenTelekom Cloud (OTC). See the [documentation](https://documentation.dataspace.copernicus.eu/APIs/S3.html) for more information, including how to get credentials.",
         "requester_pays": false
-      },
-    },
-  "themes": [
-    {
-      "scheme": "https://emc.spacebel.be/skosmos/thesaurus/en/page/5c476560-e0a3-554a-9187-187a90da1309", /* REQUIRED */
-      "concepts": [
-        {
-          "id": "<STRING>", /* REQUIRED. ID e.g. bbe13d71-bea9-55c2-9b65-a24043c35937 */
-          "title": "<STRING>", /* REQUIRED. Broader concept. e.g. Agriculture */ 
-          "url": "url" /* REQUIRED. e.g. https://earth.esa.int/concept/bbe13d71-bea9-55c2-9b65-a24043c35937 */ 
-        },
-        {
-          "id": "<STRING>",  /* REQUIRED. ID e.g. bbe13d71-bea9-55c2-9b65-a24043c35937 */
-          "title": "<STRING>", /* REQUIRED. Preferred term. e.g. Crops and Yields */ 
-          "url": "url" /* REQUIRED. e.g. https://earth.esa.int/concept/edb8488d-1f9d-548c-abf4-1cdf2dfa61f6 */ 
-        }
-      ]
-    }
-  ]    
+      }
+  }
 }
