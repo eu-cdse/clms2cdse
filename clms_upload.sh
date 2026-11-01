@@ -18,8 +18,9 @@
 # Version 1.13 [20260420] verify if there are any tif/cog/nc raster data in the tar file
 # Version 1.14 [20260721] improve product versioning for EEA datasets
 # Version 1.15 [20260721] relaxing the requirements regarding the product versioning
+# Version 1.16 [20261102] added : check for version of rclone, check if source files exist that are reported in STAC json, check gdal version to avoid incorrect geotransform, [-d] dry-run flag
 ###############################
-version="1.15"
+version="1.16"
 usage()
 {
 cat << EOF
@@ -62,6 +63,7 @@ tar tf /tmp/clms_ETA300_202111010000_GLOBE_S3_V1.0.1_cog.tar
 OPTIONS:
    -b	   [REQUIRED] bucket name to upload to specific to a producer e.g. CLMS-YOUR-BUCKET-NAME
    -c	   [OPTIONAL] (re)cogification of the TIFFs/COGs to COGs compliant with the CDSE requirements. To be used after CDSE aproval. Default: false 
+   -d	   [OPTIONAL] dry-run flag that runs all off the sanity checks without uploading tar to CLMS-YOUR-BUCKET-NAME.	
    -h      this message
    -i	   [OPTIONAL] flag indicating if a dataset should not be immediately published after ingestion to CDSE. Useful only for data sets to be released at specific date.
    -l      [REQUIRED] local path (i.e. file system) path to input file or a directory with CLMS product name containing product files (e.g. COGs & STAC JSON metadata) 
@@ -74,9 +76,10 @@ OPTIONS:
 EOF
 }
 invisible='false'
+dry_run='false'
 cogify='false'
 WorkflowName='cdse_upload'
-while getopts “b:l:p:r:w:chiov” OPTION; do
+while getopts “b:l:p:r:w:cdhiov” OPTION; do
 	case $OPTION in
 		b)
 			bucket=$OPTARG
@@ -84,6 +87,9 @@ while getopts “b:l:p:r:w:chiov” OPTION; do
 		c)
 			cogify='true'
 			;;
+		d)
+			dry_run='true'
+			;;	
 		h)
 			usage
 			exit 0
@@ -122,6 +128,41 @@ if ! [[ $(which jq) && $(which gdalinfo) && $(which ogrinfo) && $(which wget) &&
 	echo "ERROR: jq AND gdalinfo AND wget AND rclone utilities must be installed!"
 	exit 1
 fi
+# check gdalinfo version to avoid problem with geotransform https://github.com/OSGeo/gdal/pull/13363
+gdal_version=$(gdalinfo --version | grep -oE '[0-9]+\.[0-9]+(\.[0-9]+)?' | head -1)
+
+# Split into major and minor parts
+gdal_major=$(echo "$gdal_version" | cut -d. -f1)
+gdal_minor=$(echo "$gdal_version" | cut -d. -f2)
+
+# Required version
+req_major=3
+req_minor=12
+
+# Compare
+if (( gdal_major < req_major )) || \
+   (( gdal_major == req_major && gdal_minor < req_minor )); then
+    echo "ERROR: GDAL version has to be at least 3.12"
+    exit 19
+fi
+
+# check rcolne version to be able at least v1.65.0 to use --s3-use-multipart-uploads flag 
+rcolne_version=$(rclone version | head -1 | cut -f 2 -d 'v')
+# Split into major and minor parts
+rcolne_major=$(echo "$rcolne_version" | cut -d. -f1)
+rcolne_minor=$(echo "$rcolne_version" | cut -d. -f2)
+
+# Required version
+req_major=1
+req_minor=65
+
+# Compare
+if (( rcolne_major < req_major )) || \
+   (( rcolne_major == req_major && rcolne_minor < req_minor )); then
+    echo "ERROR: rclone version has to be at least 1.65. Pleas update: https://rclone.org/downloads"
+    exit 20
+fi
+
 #verify if bucket was set
 if [ -z $bucket ]; then
 	echo "ERROR: Bucket name must be specified!"
@@ -155,14 +196,16 @@ if [ $deleted_product_count -gt 0 ]; then
 	echo 'ERROR: Such product has been deleted from the CDSE!'
 	exit 7
 fi
+
+tar_listing=$(tar tf $local_file)
 #verify if the product to be uploaded is readable by gdal
 if [ "${local_file##*.}" == "tar" ]; then
     #add test if tar has a correctly named internal directory
-    if [ $(tar tf $local_file | grep -c "./$(basename ${local_file%.*})/") -eq 0 ]; then
+    if [ $(printf "$tar_listing" | grep -c "./$(basename ${local_file%.*})/") -eq 0 ]; then
         echo "ERROR: TAR file does not contain the folder named '$(basename ${local_file%.*})' containing all the product files."
         exit 8
     fi
-	gdal_products=$(tar tf $local_file | grep -E '.tif|.nc' | grep -vE '.tif.|.nc.' |  cut -c3- | sed "s|^|${local_file}/|")
+	gdal_products=$(printf "$tar_listing" | grep -E '.tif|.nc' | grep -vE '.tif.|.nc.' |  cut -c3- | sed "s|^|${local_file}/|")
 	if [ -z "$gdal_products" ]; then
 		echo "ERROR: TAR file does not contain any NetCDF of GeoTiff/COG products."
 		exit 17
@@ -191,12 +234,19 @@ fi
 
 #verify if json STAC file within a .tar product is valid
 if [ "${local_file##*.}" == "tar" ]; then
-	for stac_json in $(tar tf $local_file | grep '_stac.json'); do
-		tar -xOf $local_file $stac_json | jq . >/dev/null 2>&1
+	for stac_json in $(printf "$tar_listing" | grep '_stac.json'); do
+		stac_data=$(tar -xOf $local_file $stac_json)
+		data_files=$(echo "$stac_data" | jq -r '.assets[] | .["file:local_path"]')
 		if [ $? -ne 0 ]; then
 			echo "ERROR: STAC JSON is invalid. Can not parse ${stac_json}!"
             exit 11
 		fi
+		for data_file in $(printf "$data_files" | grep -v null); do
+			if [ $(printf "$tar_listing" | grep -c $data_file) -ne 1 ]; then
+				echo "ERROR: File "$data_file" is declared in STAC assets not it does not exist in TAR file or it exists multiple times!"
+				exit 21
+			fi 
+		done
 	done
 fi
 #check JRC product versioning
@@ -296,31 +346,35 @@ else
 fi
 
 #upload product
-rclone -q copy \
---s3-disable-http2 \
---s3-no-check-bucket \
---retries=20 \
---retries-sleep=1s \
---low-level-retries=20 \
---tpslimit=5 \
---checksum \
---s3-use-multipart-uploads=$multipart_flag \
---metadata \
---metadata-set cogify=$cogify \
---metadata-set odp-priority=$priority \
---metadata-set product-uuid=$(cat /proc/sys/kernel/random/uuid) \
---metadata-set clms-upload-version=$version \
---metadata-set uploaded=$timestamp \
---metadata-set WorkflowName=$WorkflowName \
---metadata-set invisible=$invisible \
---metadata-set source-s3-endpoint-url=$RCLONE_CONFIG_CLMS_ENDPOINT \
---metadata-set file-size=$file_size \
---metadata-set md5=$md5_checksum \
---metadata-set created=$last_modified \
---metadata-set s3-public-key=${RCLONE_CONFIG_CLMS_ACCESS_KEY_ID} \
---metadata-set source-s3-path='s3://'${s3_path} \
---metadata-set source-cleanup=true \
---metadata-set product-to-replace=${product_to_replace}${overwrite} "$local_file" CLMS:$s3_path
+if [ "$dry_run" == "true" ]; then
+	echo "INFO: Dry run of uploading the $local_file file."
+else
+	rclone -q copy \
+	--s3-disable-http2 \
+	--s3-no-check-bucket \
+	--retries=20 \
+	--retries-sleep=1s \
+	--low-level-retries=20 \
+	--tpslimit=5 \
+	--checksum \
+	--s3-use-multipart-uploads=$multipart_flag \
+	--metadata \
+	--metadata-set cogify=$cogify \
+	--metadata-set odp-priority=$priority \
+	--metadata-set product-uuid=$(cat /proc/sys/kernel/random/uuid) \
+	--metadata-set clms-upload-version=$version \
+	--metadata-set uploaded=$timestamp \
+	--metadata-set WorkflowName=$WorkflowName \
+	--metadata-set invisible=$invisible \
+	--metadata-set source-s3-endpoint-url=$RCLONE_CONFIG_CLMS_ENDPOINT \
+	--metadata-set file-size=$file_size \
+	--metadata-set md5=$md5_checksum \
+	--metadata-set created=$last_modified \
+	--metadata-set s3-public-key=${RCLONE_CONFIG_CLMS_ACCESS_KEY_ID} \
+	--metadata-set source-s3-path='s3://'${s3_path} \
+	--metadata-set source-cleanup=true \
+	--metadata-set product-to-replace=${product_to_replace}${overwrite} "$local_file" CLMS:$s3_path
+fi
 rclone_exit_code=$?
 if [ $rclone_exit_code != 0 ]; then
 	echo "ERROR: rclone exit code:$rclone_exit_code. Failed to upload $local_file to s3://${s3_path}"
