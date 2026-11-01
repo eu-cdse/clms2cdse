@@ -283,7 +283,7 @@ elif [[ "$local_file" =~ ^.*V[0-9]{3}.tar ]]; then #check EEA product versioning
 			exit 14
 		fi
 	fi
-elif [[ "$local_file" =~ ^.*V[0-9]{2}_R[0-9]{2}.tar ]]; then #check EEA product versioning V100 for HR-WSI	
+elif [[ "$local_file" =~ ^.*V[0-9]{2}[_-]R[0-9]{2}.tar ]]; then #check EEA product versioning VXX_RYY or VXX-RYY	
 	patch_number=$(echo ${local_file%.*} | tail -c 3 | bc)
 	#verify if the previous product version exists
 	odata_product=$(wget -qO - 'https://catalogue.dataspace.copernicus.eu/odata/v1/Products?$filter=(Collection/Name%20eq%20%27CLMS%27%20and%20startswith(Name,%27'$(basename "${local_file%.*}" | sed "s/..$//")'%27))&$orderby=Name%20desc')
