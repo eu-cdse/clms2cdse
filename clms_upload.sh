@@ -197,10 +197,10 @@ if [ $deleted_product_count -gt 0 ]; then
 	exit 7
 fi
 
-tar_listing=$(tar tf $local_file)
 #verify if the product to be uploaded is readable by gdal
 if [ "${local_file##*.}" == "tar" ]; then
-    #add test if tar has a correctly named internal directory
+	tar_listing=$(tar tf $local_file)
+	#add test if tar has a correctly named internal directory
     if [ $(printf "$tar_listing" | grep -c "./$(basename ${local_file%.*})/") -eq 0 ]; then
         echo "ERROR: TAR file does not contain the folder named '$(basename ${local_file%.*})' containing all the product files."
         exit 8
